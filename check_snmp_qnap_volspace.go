@@ -38,17 +38,13 @@ type SystemVolumeEntry struct {
 	SysVolumeStatus    string // abnormal, invalid, unmounted, synchronyzing
 }
 
-// NormalizeUnit assures that we're using the same units in TotalSize and in FreeSize.
-func (s *SystemVolumeEntry) NormalizeUnit() {
-	var tszunit string
+// ConvUnit converts unit of TotalSize and FreeSize in MB.
+func (s *SystemVolumeEntry) ConvUnit() {
 	if s.SysVolumeStatus == "Ready" {
-		splittedT := strings.Split(s.SysVolumeTotalSize, " ")
-		splittedF := strings.Split(s.SysVolumeFreeSize, " ")
-		tszunit = splittedT[1]
-		if splittedT[1] != splittedF[1] {
-			result, _ := convertUnit(s.SysVolumeFreeSize, tszunit)
-			s.SysVolumeFreeSize = result
-		}
+		result, _ := convertUnit(s.SysVolumeTotalSize, "MB")
+		s.SysVolumeTotalSize = result
+		result, _ = convertUnit(s.SysVolumeFreeSize, "MB")
+		s.SysVolumeFreeSize = result
 	}
 }
 
@@ -58,20 +54,19 @@ func (s *SystemVolumeEntry) UoM() string {
 	return splittedT[1]
 }
 
-// convertUnit converts vaule to 'dunit'. value is something like "8.44 TB".
+// convertUnit converts 'vaule' to 'dunit'. 'value' is something like "8.44 TB".
 func convertUnit(value string, dunit string) (string, error) {
 	splitted := strings.Split(value, " ")
 	svalue := splitted[0]
 	sunit := splitted[1]
-	if sunit == dunit { // Conversion not needed.
-		return value, nil
-	}
 	var v float64
 	var err error
 	if v, err = strconv.ParseFloat(svalue, 64); err != nil {
 		return "", fmt.Errorf("convertUnit: %s", err)
 	}
-	if sunit == "MB" && dunit == "GB" { // MB to GB
+	if sunit == dunit {
+		return fmt.Sprintf("%f %s", v, sunit), nil
+	} else if sunit == "MB" && dunit == "GB" { // MB to GB
 		return fmt.Sprintf("%f GB", v/1000), nil
 	} else if sunit == "MB" && dunit == "TB" { // MB to TB
 		return fmt.Sprintf("%f TB", v/1000000), nil
@@ -151,7 +146,7 @@ func main() {
 
 		} else {
 			// Let's assure that SysVolumeTotalSize and SysVolumeFreeSize are of same unit.
-			sysvolentries[i].NormalizeUnit()
+			sysvolentries[i].ConvUnit()
 			if totsz, err = size2Float(sysvolentries[i].SysVolumeTotalSize); err != nil {
 				// Exit!
 				nagutils.NagiosExit(nagutils.Errors["UNKNOWN"], err.Error())

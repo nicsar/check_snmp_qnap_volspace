@@ -83,7 +83,7 @@ func TestConvertUnitErr(t *testing.T) {
 	}
 }
 
-func TestNormalizeUnit(t *testing.T) {
+func TestConvUnit(t *testing.T) {
 	s1 := SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10.77 TB", "8.79 TB", "Ready"}
 	s2 := SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10.77 TB", "388 MB", "Ready"}
 	type testvalues struct {
@@ -91,22 +91,22 @@ func TestNormalizeUnit(t *testing.T) {
 		correct SystemVolumeEntry
 	}
 	var cases = []testvalues{
-		{s1, SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10.77 TB", "8.79 TB", "Ready"}},
-		{s2, SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10.77 TB", "0.000388 TB", "Ready"}},
+		{s1, SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10770000.000000 MB", "8790000.000000 MB", "Ready"}},
+		{s2, SystemVolumeEntry{"[Volume Volume-1, Pool 1]", "10770000.000000 MB", "388.000000 MB", "Ready"}},
 	}
 	for _, c := range cases {
-		c.in.NormalizeUnit()
+		c.in.ConvUnit()
 		if c.in.SysVolumeDescr != c.correct.SysVolumeDescr {
-			t.Errorf("s.NormalizeUnit(), SysVolumeDescr modified!")
+			t.Errorf("s.ConvUnit(), SysVolumeDescr modified!")
 		}
 		if c.in.SysVolumeTotalSize != c.correct.SysVolumeTotalSize {
-			t.Errorf("s.NormalizeUnit(), SysVolumeTotalSize modified!")
+			t.Errorf("s.ConvUnit(), SysVolumeTotalSize != %q, got %q", c.correct.SysVolumeTotalSize, c.in.SysVolumeTotalSize)
 		}
 		if c.in.SysVolumeFreeSize != c.correct.SysVolumeFreeSize {
-			t.Errorf("s.NormalizeUnit(), SysVolumeFreeSize != %q, got %q", c.correct.SysVolumeFreeSize, c.in.SysVolumeFreeSize)
+			t.Errorf("s.ConvUnit(), SysVolumeFreeSize != %q, got %q", c.correct.SysVolumeFreeSize, c.in.SysVolumeFreeSize)
 		}
 		if c.in.SysVolumeStatus != c.correct.SysVolumeStatus {
-			t.Errorf("s.NormalizeUnit(), SysVolumeStatus modified!")
+			t.Errorf("s.ConvUnit(), SysVolumeStatus modified!")
 		}
 	}
 }
