@@ -1,5 +1,7 @@
 # check_snmp_qnap_volspace
-This is a Nagios plugin to check status and space usage of Qnap volumes.
+
+This is a Nagios plugin written in *Go* to check status and space usage of Qnap volumes via *SNMP*.
+
 ## Usage
 From command line:
 
@@ -35,6 +37,20 @@ Collecting of performance data can be done by using the `-f` flag.
 Performance data can be graphed using `pnp4nagios`:
 
 	nagios:~# cd /usr/local/pnp4nagios/share/templates
-	ln -sv ../templates.dist/check_disk.php check_qnap_snmp_volspace.php
+	nagios:templates# ln -sv ../templates.dist/check_disk.php check_qnap_snmp_volspace.php
 	
+## Compilation and installation
+Before compile you need to get [nagutils](https://github.com/nicsar/nagutils).
+To compile `cd` to `check_snmp_qnap_volspace` directory, then copy the executable to *Nagios* plugin directory:
+
+	nagios:~$ go build
+	nagios:~$ sudo cp check_snmp_qnap_volspace /usr/local/nagios/libexec/
+
+### Cross compiling
+To compile for *Linux* 32 bit:
 	
+	~$ GOARCH=386 GOOS=linux go build
+
+To compile fro *FreeBSD* 32 bit:
+
+	~$ GOARCH=386 GOOS=freebsd go build
