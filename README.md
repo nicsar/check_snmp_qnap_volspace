@@ -40,9 +40,23 @@ Performance data can be graphed using `pnp4nagios`:
 	nagios:templates# ln -sv ../templates.dist/check_disk.php check_qnap_snmp_volspace.php
 	
 ## Compilation and installation
-Before compile you need to get [nagutils](https://github.com/nicsar/nagutils).
-To compile `cd` to `check_snmp_qnap_volspace` directory, then copy the executable to *Nagios* plugin directory:
+This plugin depends on `snmpwalk` command:
 
+	# Debian
+	~$ sudo apt-get install snmp
+	
+	# Fedora
+	~$ sudo dnf install net-snmp-utils
+	
+	# FreeBSD
+	% sudo pkg install net-snmp
+
+Check if the variable `snmpwalk` is set to the correct path. Default is `"/usr/sbin/snmpwalk"`, you can evantually edit line number 22 of `check_snmp_qnap_volspace.go` file.
+
+Before compiling you need to get also [nagutils](https://github.com/nicsar/nagutils).
+To compile you need to build the executable and then copy it to the *Nagios* plugin directory:
+
+	nagios:~$ cd check_snmp_qnap_volspace
 	nagios:~$ go build
 	nagios:~$ sudo cp check_snmp_qnap_volspace /usr/local/nagios/libexec/
 
